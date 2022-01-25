@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import List, Any, Optional
 from bson import ObjectId
@@ -11,7 +12,7 @@ from utils import password_hash
 app = FastAPI()
 
 
-def user_auth(user: User) -> bool:
+def user_auth(user: UserLogin) -> bool:
     a = users.find_one(
         {"$and": [
             {"$or":
@@ -59,12 +60,12 @@ async def create_user(user_in: User) -> str:
 
 
 @app.post("/login/")
-async def login(user: User) -> str:
+async def login(user: UserLogin) -> str:
+    # Just to make this process longer
+    await asyncio.sleep(0.5)
     if not user_auth(user):
         return "no"
     return "yes"
-    # u = get_user_or_none(user)
-    # print("UUUUUUUU SUKA BLYAT = ", u)
 
 
 @app.put("/change-password")
@@ -78,8 +79,6 @@ async def change_password(user: UserPasswordChange):
     users.update_one({'_id': ObjectId(us.id)}, {
         '$set': {'password': password_hash(user.new_password)}
     }, upsert=False)
-
-
 
 
 @app.get("/get-all")

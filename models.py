@@ -11,6 +11,12 @@ class User(BaseModel):
     email: EmailStr
 
 
+class UserLogin(BaseModel):
+    username: str | None = None
+    password: str
+    email: EmailStr | None = None
+
+
 class DBUser(User):
     id: str
 
