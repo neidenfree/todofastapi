@@ -1,8 +1,6 @@
 from typing import List, Optional
 
-from bson import ObjectId
 from pydantic import BaseModel, EmailStr
-from connections import db
 
 
 class User(BaseModel):

@@ -1,6 +1,4 @@
 import asyncio
-import json
-from typing import List, Any, Optional
 from bson import ObjectId
 
 from fastapi import FastAPI
@@ -33,7 +31,7 @@ def get_user_or_none(user: UserLogin) -> Optional[DBUser]:
              },
             {"password": password_hash(user.password)}]
         })
-    print(a)
+    print('a = ', a)
     if a is None:
         return None
 
@@ -98,7 +96,8 @@ def get_user_tasks(user: User):
     print(user_tasks)
 
 
-@app.post("/tasks", response_model=Task)
+# @app.post("/tasks", response_model=Task)
+@app.post("/tasks")
 async def add_task(user: UserLogin, task: Task):
     """
     One of the cool things about MongoDB is that the ids are generated client side.
@@ -107,6 +106,7 @@ async def add_task(user: UserLogin, task: Task):
         what to save in the first place. Using pymongo the return value of an insert will be the object id.
     """
     db_user = get_user_or_none(user)
+    print('db_user = ', db_user)
     if db_user is None:
         return "Wrong user!"
     print(task)
@@ -115,4 +115,4 @@ async def add_task(user: UserLogin, task: Task):
     task.user_id = str(task.user_id)
     task.task_id = str(inserted_task.inserted_id)
 
-    return dict(task)
+    return task
