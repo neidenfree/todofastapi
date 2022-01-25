@@ -5,11 +5,10 @@ from fastapi import FastAPI
 from connections import db
 from models import *
 
+from utils import password_hash
+
+
 app = FastAPI()
-
-
-def password_hasher(raw_password: str):
-    return "secret" + raw_password
 
 
 def save_user(user_in: User) -> str:
@@ -21,6 +20,7 @@ def save_user(user_in: User) -> str:
     print(a)
     if a is not None:
         return "There are user with this username or email!"
+    user_in.password = password_hash(user_in.password)
     collection.insert_one(dict(user_in))
     return "ok"
 
@@ -41,7 +41,7 @@ async def login(user: User) -> str:
                  [{"username": user.username},
                   {"email": user.email}]
              },
-            {"password": user.password}]
+            {"password": password_hash(user.password)}]
         })
 
     if a is None:
