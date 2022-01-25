@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr
@@ -12,9 +12,9 @@ class User(BaseModel):
 
 
 class UserLogin(BaseModel):
-    username: str | None = None
+    username: Optional[str]
+    email: Optional[EmailStr]
     password: str
-    email: EmailStr | None = None
 
 
 class DBUser(User):
@@ -28,3 +28,11 @@ class UserPasswordChange(User):
 class Response(BaseModel):
     ok: str
     messages: List[str]
+
+
+class Task(BaseModel):
+    user_id: Optional[str]
+    task_id: Optional[str]
+    title: str
+    description: str | None = None
+    done: bool = False

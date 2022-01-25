@@ -4,7 +4,7 @@ from typing import List, Any, Optional
 from bson import ObjectId
 
 from fastapi import FastAPI
-from connections import users
+from connections import users, tasks
 from models import *
 
 from utils import password_hash
@@ -24,7 +24,7 @@ def user_auth(user: UserLogin) -> bool:
     return a is not None
 
 
-def get_user_or_none(user: User) -> Optional[DBUser]:
+def get_user_or_none(user: UserLogin) -> Optional[DBUser]:
     a = users.find_one(
         {"$and": [
             {"$or":
@@ -89,3 +89,30 @@ def get_all_users():
     for elem in res:
         result.append(elem)
     return result
+
+
+@app.get("/tasks")
+def get_user_tasks(user: User):
+    db_user = get_user_or_none(user)
+    user_tasks = tasks.find({'user': ObjectId(db_user.id)})
+    print(user_tasks)
+
+
+@app.post("/tasks", response_model=Task)
+async def add_task(user: UserLogin, task: Task):
+    """
+    One of the cool things about MongoDB is that the ids are generated client side.
+
+    This means you don't even have to ask the server what the id was, because you told it
+        what to save in the first place. Using pymongo the return value of an insert will be the object id.
+    """
+    db_user = get_user_or_none(user)
+    if db_user is None:
+        return "Wrong user!"
+    print(task)
+    task.user_id = ObjectId(db_user.id)
+    inserted_task = tasks.insert_one(dict(task))
+    task.user_id = str(task.user_id)
+    task.task_id = str(inserted_task.inserted_id)
+
+    return dict(task)
