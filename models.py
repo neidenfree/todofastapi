@@ -15,6 +15,10 @@ class UserLogin(BaseModel):
     password: str
 
 
+class DeleteTaskUserLogin(UserLogin):
+    task_id: str
+
+
 class DBUser(User):
     id: str
 
