@@ -61,7 +61,7 @@ def save_user(user_in: User) -> dict:
         return {"ok": False, "message": "There are user with this username or email! Please, choose another username or email!"}
     user_in.password = password_hash(user_in.password)
     users.insert_one(dict(user_in))
-    return {"ok": True}
+    return {"ok": True, "username": user_in.username, "email": user_in.email}
 
 
 @app.post("/register/")
@@ -83,9 +83,11 @@ async def login(user: UserLogin) -> DBUser:
 
 @app.put("/change-password")
 async def change_password(user: UserPasswordChange):
-    """Password validation must be on a frontend side"""
+    """Password match check must be on a frontend side"""
+    print(user)
+    # return {'ok': True, 'message': "Password changed successfully!"}
     if not (us := get_user_or_none(user)):
-        return "Wrong username and password!"
+        return {'ok': False, 'message': "Password or username is invalid!"}
     print(user)
     a = users.find_one({'_id': ObjectId(us.id)})
     print('a = ', a)
