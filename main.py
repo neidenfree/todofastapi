@@ -45,7 +45,6 @@ def get_user_or_none(user: UserLogin) -> Optional[DBUser]:
              },
             {"password": password_hash(user.password)}]
         })
-    print('a = ', a)
     if a is None:
         return None
 
@@ -58,7 +57,8 @@ def save_user(user_in: User) -> dict:
                              {"email": user_in.email}]
                         }, {})
     if a is not None:
-        return {"ok": False, "message": "There are user with this username or email! Please, choose another username or email!"}
+        return {"ok": False,
+                "message": "There are user with this username or email! Please, choose another username or email!"}
     user_in.password = password_hash(user_in.password)
     users.insert_one(dict(user_in))
     return {"ok": True, "username": user_in.username, "email": user_in.email}
@@ -151,23 +151,26 @@ async def delete_task(user_delete: DeleteTaskUserLogin):
     try:
         a = tasks.delete_one({"user_id": ObjectId(db_user.id), "_id": ObjectId(user_delete.task_id)})
         if a.deleted_count == 0:
-            return "no delete"
-        return "ok"
+            return {"ok": False, "message": "There are no element with this task_id!"}
+        return {"ok": True, "message": "Item was deleted successfully!"}
     except:
-        return "not okay"
+        return {"ok": False, "message": "Some wierd error!"}
 
 
-@app.put("/task")
+@app.put("/task", response_model=Response)
 async def modify_task(user: UserLogin, task: Task):
     db_user = get_user_or_none(user)
     if db_user is None:
-        return "Wrong user!"
+        return Response(ok=False, message="No such user")
     if task.task_id is None:
-        return "Wrong!"
+        return Response(ok=False, message="No such task")
     task.user_id = ObjectId(db_user.id)
     a = tasks.find_one({'_id': ObjectId(task.task_id)})
     if a is None:
-        return "No such element"
-    users.update_one({'_id': ObjectId(task.task_id)}, {
+        return Response(ok=False, message="No such task")
+
+    tasks.update_one({'_id': ObjectId(task.task_id)}, {
         '$set': {'description': task.description, "title": task.title, "done": task.done}
     }, upsert=False)
+
+    return Response(ok=True, message="Task modified!")

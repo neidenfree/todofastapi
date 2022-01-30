@@ -28,8 +28,8 @@ class UserPasswordChange(User):
 
 
 class Response(BaseModel):
-    ok: str
-    messages: List[str]
+    ok: bool
+    message: str
 
 
 class Task(BaseModel):
@@ -37,4 +37,4 @@ class Task(BaseModel):
     task_id: Optional[str]
     title: str
     description: str | None = None
-    done: bool = False
+    done: bool
