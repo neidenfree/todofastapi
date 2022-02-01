@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from connections import users, tasks
 from models import *
+import uvicorn
 
 from utils import password_hash
 
@@ -173,3 +174,9 @@ async def modify_task(user: UserLogin, task: Task):
     }, upsert=False)
 
     return Response(ok=True, message="Task modified!")
+
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="23.111.121.144", port=8888)
+    uvicorn.run(app, host="localhost", port=8888)
