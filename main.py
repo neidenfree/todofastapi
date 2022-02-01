@@ -12,7 +12,6 @@ app = FastAPI()
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-
 ]
 
 app.add_middleware(
@@ -143,7 +142,7 @@ async def add_task(user: UserLogin, task: Task):
     return task
 
 
-@app.delete("/task")
+@app.delete("/task", response_model=Response)
 async def delete_task(user_delete: DeleteTaskUserLogin):
     db_user = get_user_or_none(user_delete)
     if not db_user:
@@ -151,10 +150,10 @@ async def delete_task(user_delete: DeleteTaskUserLogin):
     try:
         a = tasks.delete_one({"user_id": ObjectId(db_user.id), "_id": ObjectId(user_delete.task_id)})
         if a.deleted_count == 0:
-            return {"ok": False, "message": "There are no element with this task_id!"}
-        return {"ok": True, "message": "Item was deleted successfully!"}
+            return Response(ok=False, message="There are no element with this task_id!")
+        return Response(ok=True, message="Item was deleted successfully!")
     except:
-        return {"ok": False, "message": "Some wierd error!"}
+        return Response(ok=False, message="Some wierd error!")
 
 
 @app.put("/task", response_model=Response)
